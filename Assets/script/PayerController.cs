@@ -77,6 +77,11 @@ public class PayerController : MonoBehaviour
         if (!canControl || (GameUI.Instance != null && GameUI.Instance.IsPaused))
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            if (animator != null)
+            {
+                animator.SetBool(IsWalkingHash, false);
+                animator.SetBool(IsGroundedHash, isGrounded);
+            }
             return;
         }
        
@@ -151,9 +156,66 @@ public class PayerController : MonoBehaviour
     {
         audioSource.PlayOneShot(audio);
     }
+    public void Bounce(float force = 6.5f)
+    {
+        if (rb != null)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, force);
+        }
+        isGrounded = false;
+    }
+
     public void SetCanControl(bool val)
     {
         canControl = val;
+        if (!val)
+        {
+            move = Vector2.zero;
+        }
+    }
+
+    public void Celebrate()
+    {
+        canControl = false;
+        move = Vector2.zero;
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+
+        if (animator != null)
+        {
+            animator.SetBool(IsWalkingHash, false);
+            animator.SetBool(IsGroundedHash, isGrounded);
+        }
+
+        StartCoroutine(CelebrateRoutine());
+    }
+
+    private IEnumerator CelebrateRoutine()
+    {
+        // If reached goal while airborne, wait until landing
+        float timeout = 0.5f;
+        while (!isGrounded && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        // Brief stop on the ground to register standing still
+        yield return new WaitForSeconds(0.1f);
+
+        // Celebratory victory jump!
+        rb.linearVelocity = new Vector2(0f, jumpForce * 1.25f);
+        isGrounded = false;
+
+        if (jumpSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(jumpSound);
+        }
+
+        if (animator != null)
+        {
+            animator.SetBool(IsWalkingHash, false);
+            animator.SetBool(IsGroundedHash, false);
+        }
     }
 
     public void AddKey(KeyColor color)
