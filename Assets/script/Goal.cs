@@ -19,7 +19,7 @@ public class Goal : MonoBehaviour
     {
         if (requiredDoor == null)
         {
-            requiredDoor = FindFirstObjectByType<Door>();
+            requiredDoor = FindAnyObjectByType<Door>();
         }
     }
 
@@ -82,7 +82,7 @@ public class Goal : MonoBehaviour
             return requiredDoor.IsOpen;
         }
 
-        Door[] doors = FindObjectsByType<Door>(FindObjectsSortMode.None);
+        Door[] doors = FindObjectsByType<Door>();
         foreach (var door in doors)
         {
             if (!door.IsOpen) return false;
