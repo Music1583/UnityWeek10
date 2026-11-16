@@ -94,4 +94,3 @@ public class Enemy : MonoBehaviour
         Gizmos.DrawWireSphere(rightPoint, 0.25f);
     }
 }
-
